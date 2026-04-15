@@ -1,7 +1,7 @@
 package Entity;
 
 import java.time.LocalDate;
-import java.util.Date;
+//import java.util.Date;
 
 public class Transaction {
 	private int transactionId;
@@ -15,7 +15,7 @@ public class Transaction {
     
     public Transaction(){
     }
-    
+
 	public Transaction(int bookId, int userId, LocalDate issueDate, LocalDate dueDate) {
 		this.bookId = bookId;
 		this.userId = userId;
@@ -23,6 +23,13 @@ public class Transaction {
 		this.dueDate = dueDate;
 		this.fineAmount = 0.0;
 		this.status = "ISSUED";
+	}
+	
+	@Override
+	public String toString() {
+		return "Transaction [transactionId=" + transactionId + ", bookId=" + bookId + ", userId=" + userId
+				+ ", issueDate=" + issueDate + ", dueDate=" + dueDate + ", returnDate=" + returnDate + ", fineAmount="
+				+ fineAmount + ", status=" + status + "]";
 	}
 
 

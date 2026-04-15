@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import Entity.Book;
 import Entity.User;
@@ -59,6 +60,7 @@ public class AdminServices {
 			ps.setString(2, book.getAuthor());
 			ps.setString(3, book.getDescription());
 			ps.setInt(4, book.getQuantity());
+			ps.setInt(5, book.getBookId());
 			
 			return ps.executeUpdate()>0;
 			
@@ -77,7 +79,7 @@ public class AdminServices {
 		String query = "insert into users (userName, phoneNo, totalLateFee) values"
 				+ "(?, ?, ?)";
 		try(Connection con = DBConnection.getConnection();
-				PreparedStatement ps = con.prepareStatement(query)){
+				PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
 			ps.setString(1, user.getUserName());
 			ps.setString(2, user.getPhoneNo());
 			ps.setDouble(3, user.getTotalLateFee());
@@ -85,7 +87,7 @@ public class AdminServices {
 			if(ps.executeUpdate()>0) {
 				ResultSet rs = ps.getGeneratedKeys();
 				if(rs.next()) {
-					int id = rs.getInt("userId");
+					int id = rs.getInt(1);
 					user.setUserId(id);
 					return user;
 				}

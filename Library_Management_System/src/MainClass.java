@@ -1,6 +1,8 @@
+import java.time.LocalDate;
 import java.util.Scanner;
 
 import Entity.Book;
+import Entity.Transaction;
 import Entity.User;
 import Services.AdminServices;
 import Services.Management;
@@ -53,27 +55,84 @@ public class MainClass {
 
 	private static void feePayment() {
 		// TODO Auto-generated method stub
+		System.out.println("Enter the BookId:-");
+		int bookId = sc.nextInt();
+		System.out.println("Enter the UserId:-");
+		int userId = sc.nextInt();
+		sc.nextLine();
+		Search sr = new Search();
+		Book book = sr.isBookAvailable(bookId);
+		User user = sr.isUserValid(userId);
+		Management mg = new Management();
+		if(book == null && user == null) {
+			System.out.println("Either no book or No user Found..");
+		}
 		
+		Transaction tr = mg.calculateLateFee(book, user);
+		System.out.println("Late Fees :- "+tr.getFineAmount());
 	}
 
 	private static void userBooks() {
 		// TODO Auto-generated method stub
 		
 		
+		
 	}
 
 	private static void showTransactions() {
 		// TODO Auto-generated method stub
+		System.out.println("Enter the User ID:-");
+		int userId = sc.nextInt();
+		sc.nextLine();
+		Search sr = new Search();
+		sr.displayAllTransactions(userId);
 		
 	}
 
 	private static void allTransactionsAdmin() {
 		// TODO Auto-generated method stub
+		Search sr = new Search();
+		sr.displayAllTransactions(-1);
 		
 	}
 
 	private static void returnBook() {
 		// TODO Auto-generated method stub
+		System.out.println("Enter the BookId:-");
+		int bookId = sc.nextInt();
+		System.out.println("Enter the UserId:-");
+		int userId = sc.nextInt();
+		sc.nextLine();
+		Search sr = new Search();
+		Book book = sr.isBookAvailable(bookId);
+		User user = sr.isUserValid(userId);
+		Management mg = new Management();
+		if(book == null || user == null) {
+			System.out.println("Either no book or No user Found..");
+			return;
+		}
+		
+		Transaction tr = mg.calculateLateFee(book, user);
+		if(tr == null) return;
+		if(tr.getFineAmount() > 0.0) {
+			System.out.println("Fine Amount is :-"+tr.getFineAmount());
+			System.out.println("Does Fine Amount Paid (YES or NO):-");
+			String res = sc.nextLine();
+			if(res == "YES") {
+				tr.setFineAmount(0.0);
+				tr.setStatus("RETURNED");
+				tr.setReturnDate(LocalDate.now());
+				if(mg.returnBook(user, book, tr)) System.out.println("Success");
+			}
+			else {
+				if(mg.returnBook(user, book, tr))
+					System.out.println("book has not yet returned and book status is overdue");
+			}
+		}
+		else {
+			if(mg.returnBook(user, book, tr))System.out.println("Sucess");
+		}
+		
 		
 	}
 
@@ -86,7 +145,10 @@ public class MainClass {
 		User user = new User(userName, phoneNo);
 		AdminServices adser = new AdminServices();
 		user =  adser.registerUser(user);
+		if(user != null) {
 		System.out.println("User register Success: - UserID - "+user.getUserId());
+		}
+		else System.out.println("User Registration Failed..!");
 		
 	}
 
@@ -96,7 +158,9 @@ public class MainClass {
 		System.out.println("Enter BookId:-");
 		int bookId = sc.nextInt();
 		Book book = sr.isBookAvailable(bookId);
-		if(book == null) System.out.println("No Book Found..!");
+		if(book == null) {System.out.println("No Book Found..!");
+		return;
+		}
 		System.out.println("Enter Want you want to update\n "
 				+ "1.Book Name \n"
 				+ "2.Author \n"
@@ -154,6 +218,9 @@ public class MainClass {
 		if( book == null) {
 			System.out.println("Book not Available..!");
 			return;
+		}
+		if(book.getQuantity() <=0) {System.out.println("Book not Available..!");
+		return;
 		}
 		System.out.println("Enter UserId if not registered register First..!");
 		int userId = sc.nextInt();
